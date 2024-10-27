@@ -1,4 +1,6 @@
 #根据算法生成组方和组方分数评价
+import csv
+
 import formula_herb_importance as fhi
 import Data_input as di
 import Data_output as do
@@ -320,7 +322,7 @@ if __name__ == '__main__':
         optimizer = optim.Adam(model.parameters(), lr=0.001)
         train(model, optimizer, episodes=3000, herbs=herb_score['herb_name'].values.tolist(), evaluate_fitness=compute_formula_score, herb_score_dict=herb_score_dict, herb_pair_from_data=herb_pair_from_data)
 
-        num_prescriptions = 1000  # 生成10个方剂
+        num_prescriptions = 1000  # 生成1000个方剂
         generated_prescriptions = generate_prescriptions(model, herb_score['herb_name'].values.tolist(), num_prescriptions)
         scores_with_prescriptions = []
         for i, prescription in enumerate(generated_prescriptions):
@@ -335,49 +337,19 @@ if __name__ == '__main__':
         for score, prescription in scores_with_prescriptions:
             i=i+1
             print(f"Rank：{i},Score: {score}, Prescription: {prescription}")
-        '''
-        scores = []
-        for i, prescription in enumerate(generated_prescriptions):
-            scores.append(compute_formula_score(prescription, herb_score_dict, herb_pair_from_data))
-            print(f"Prescription {i + 1}: {prescription}, score{compute_formula_score(prescription, herb_score_dict, herb_pair_from_data)}")
-        scores.sort(reverse=True)
-        print(scores)
-        '''
-        p=['人参','厚朴','大枣','干姜','当归','桂枝','甘草','生姜','白术','茯苓']
-        print(compute_formula_score(p, herb_score_dict, herb_pair_from_data))
-        drl_herb_recommendation = DRLHerbRecommendation(herb_score['herb_name'].values.tolist(), herb_score['hscore'].values.tolist())
-        drl_herb_recommendation.evolve(100)
 
-        formula_score_dict = {}
-        formulas = innit_formula_seed(herb_score_dict, formula_nums, rows_list)
-        #test_formula = ['丹参','川芎','延胡索','杜仲','甘草','白术','苦杏仁','葛根','麻黄']
-        #print(compute_formula_score(test_formula, herb_score_dict, herb_pair_from_data)*10000)
+        # 只取前50个元素
+        first_50 = scores_with_prescriptions[:50]
 
-        for formula_list in formulas:
-            formula_score_dict[compute_formula_score(formula_list, herb_score_dict, herb_pair_from_data)] = formula_list
-        while(len(formula_score_dict.keys())!=formula_nums):
-            f_h_l = innit_formula_seed(herb_score_dict, 1, [rd.randint(low_formula_num,up_formula_num)])
-            f_score = compute_formula_score(f_h_l[0], herb_score_dict, herb_pair_from_data)
-            formula_score_dict[f_score] = f_h_l[0]
+        # 指定要保存的CSV文件名
+        csv_file = 'output_top50.csv'
 
-        #所有生成过的方剂合并，为抽取1000个均匀分布的方剂准备
-        all_final_formula_score_dict = {}
+        # 将前50个元素写入CSV文件
+        with open(csv_file, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            for item in first_50:
+                writer.writerow([item])  # 将每个元素写入新行
 
-        #final_formula_score_dict = {}#最终迭代的1000个方剂极其分数
+        print(f"前50个元素已保存到 {csv_file} 文件中。")
 
 
-
-        max_score = -99999
-        for k in range(1000):
-            print("第"+str(k)+"迭代")
-            new_score_dict = Genetic_Algorithm(formula_score_dict,herb_score_dict,herb_pair_from_data,formula_nums)
-            formula_score_dict = new_score_dict
-            for (key,value) in formula_score_dict.items():
-                if key not in all_final_formula_score_dict:
-                    all_final_formula_score_dict[key] = formula_score_dict[key]
-
-        final_formula_score_dict = formula_sorted_num(all_final_formula_score_dict)
-        #final_formula_score_dict = formula_score_dict
-        write_file_name = 'Alzheimer_' + str(importance_list_name[importance_ix]) + 'dl018.csv'
-        do.writeformulatodata(write_file_name,final_formula_score_dict)
-        #do.writeformulatodata('formulascore_RA_sab.csv',final_formula_score_dict)

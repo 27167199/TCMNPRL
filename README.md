@@ -16,7 +16,7 @@ approved prescriptions.
 
 ## Usage
   * To run the program: Run 'formula_generate.py'.
-  * File 'Alzheimer_pagerankdl018.csv' shows the generated top 50 prescriptions.
+  * File 'output_top50.csv' shows the generated top 50 prescriptions.
   
 
 ## Contact
