@@ -18,7 +18,7 @@ approved prescriptions.
   * To run the program: Run 'formula_generate.py'.
   * File 'output_top50.csv' shows the generated top 50 prescriptions.
   
-## Contact us
+## Contact
 If you have any questions or comments, please feel free to email Cheng Yan(yancheng01@hnucm.edu.cn).
 
 
